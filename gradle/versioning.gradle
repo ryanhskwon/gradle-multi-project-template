@@ -1,0 +1,80 @@
+class ProjectVersion {
+
+    Integer major
+    Integer minor
+    Integer patch
+    String build
+    String branch
+
+
+    ProjectVersion(Integer major, Integer minor, Integer patch, String build, String branch) {
+        this.major = major
+        this.minor = minor
+        this.patch = patch
+        this.build = build
+        this.branch = branch
+    }
+
+    @Override
+    String toString() {
+        String fullVersion = "$major.$minor.$patch"
+        String release = '-SNAPSHOT'
+
+        if(build) {
+            fullVersion += ".$build"
+            if (branch == 'master') {
+                release = '.RELEASE'
+            } else if (branch == 'develop') {
+                release = '.MILESTONE'
+            } else {
+                release = ''
+            } 
+            fullVersion += release
+        } else {
+            fullVersion += "-SNAPSHOT"
+        }
+
+        fullVersion
+    }
+   
+    
+}
+
+
+def numberOfCommits() {
+	return 'git rev-list HEAD --count'.execute().text.trim()
+}
+
+
+def timestamp() {
+	return new Date().format("yyyyMMdd-HHmmss")
+}
+
+def getGitBranch() {
+    for (String s in "git branch".execute().text.split("\n")) {
+        s = s.trim()
+        if (s.startsWith("* ")) {
+            return s.substring(2)
+        }
+    }
+}
+
+// task gitBranch << {
+//     println ">> HEAD branch: ${getGitBranch()}"
+// }
+
+
+// task printVersion() {
+//     group = 'com.konai.psm'
+//     description = 'Prints project version'
+//     doLast {
+//         logger.quiet "Version: ${version}"
+//     }
+// }
+
+
+allprojects {
+    ext.buildTimestamp = new Date().format('yyyy-MM-dd HH:mm:ss')
+//    project.version = new ProjectVersion(major.toInteger(), minor.toInteger(), patch.toInteger(), numberOfCommits().toString(), branch.toString())
+//    project.version = new ProjectVersion(1, 1, 0, numberOfCommits().toString(), getGitBranch())
+}

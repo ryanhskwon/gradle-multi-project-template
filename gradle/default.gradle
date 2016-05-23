@@ -1,0 +1,150 @@
+def javaprojects  = [project('application:common'),project('application:core'),project('application:notification'),project('application:oauth')]
+def bootprojects  = javaprojects - project('application:common')
+def parentprojects = allprojects - javaprojects
+
+
+allprojects {
+
+    // IDE 세팅
+	apply plugin: 'idea'
+    apply plugin: 'eclipse'
+
+    eclipse {
+        classpath {
+           downloadJavadoc = true
+           downloadSources=true
+        }
+    }
+    
+    idea {
+        module {
+            inheritOutputDirs = false
+            outputDir = file("$buildDir/classes/main/")
+            jdkName = '1.8'
+            downloadJavadoc = true
+            downloadSources = true
+        }
+    }
+
+    configurations {
+    	
+    	all {
+    		//공통 처리
+    	}
+    }
+
+    group = projectGroupId
+}
+
+configure(javaprojects) {
+
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    // encording option
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = "UTF-8"
+
+    // compile option
+    compileJava {
+        options.compilerArgs << '-Xdoclint:none'
+        options.fork = true
+        options.forkOptions.executable = 'javac'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+}
+
+configure(bootprojects) { 
+
+    apply plugin: 'java'
+    apply plugin: 'spring-boot'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    // encording option
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = "UTF-8"
+
+    // compile option
+    compileJava {
+        options.compilerArgs << '-Xdoclint:none'
+        options.fork = true
+        options.forkOptions.executable = 'javac'
+    }
+
+    repositories {
+    	mavenCentral()
+    }
+
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+
+    	imports {
+    		mavenBom "io.spring.platform:platform-bom:2.0.0.RELEASE"
+    	}
+
+    	dependencies {
+    		dependency 'org.projectlombok:lombok:1.16.8'
+    	}
+    }
+
+    task initSrc << {
+        project.sourceSets*.allSource.srcDirTrees.flatten().dir.each { dir ->
+            if (!project.name.equals(rootProject.name)) {
+                dir.mkdirs()
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+            resources {
+                srcDir 'src/main/resources'
+                srcDir 'src/main/java'
+            }
+        }
+    }
+
+
+    classes.doLast {
+        def buildInfoFile = new File("$buildDir/resources/main/application.yml")
+        buildInfoFile.append("\ninfo:")
+        buildInfoFile.append("\n  app:")
+        buildInfoFile.append("\n    name       : " + rootProject.name)
+        buildInfoFile.append("\n    component  : " + project.name)
+        buildInfoFile.append("\n    description: " + project.description)
+        buildInfoFile.append("\n    version    : " + project.version.toString())
+        buildInfoFile.append("\n    timestamp  : " + project.buildTimestamp)
+    
+        def infoFile = file("${buildDir}/build-info.properties")
+        def properties = new Properties()
+        properties.setProperty('application.build.version', version.toString())
+        properties.setProperty('java.version', System.properties['java.version'])
+        properties.setProperty('java.vendor', System.properties['java.vendor'])
+        properties.setProperty('os.name', System.properties['os.name'])
+        properties.setProperty('os.arch', System.properties['os.arch'])
+        properties.setProperty('os.version', System.properties['os.version'])
+        properties.store(infoFile.newWriter(), 'Build Information')    
+    } 
+}
+
+eclipse {
+    classpath {
+         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    description = "Generatres gradlew[.bat] scripts"
+    gradleVersion = "2.11"
+}

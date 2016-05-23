@@ -1,0 +1,36 @@
+configure(subprojects.findAll { subproject -> subproject.plugins.hasPlugin('java') }) {
+
+
+    jar {
+        exclude '*.conf'
+        exclude '*.xml'
+        exclude '*.yml'
+        exclude '*.groovy'
+        exclude '**/*.conf'
+        exclude '**/*.xml'
+        exclude '**/*.yml'
+        exclude '**/*.groovy'
+        manifest {
+            attributes 'Implementation-Title': project.description
+            attributes 'Implementation-Version': project.version
+            attributes 'Implementation-Vendor': project.group
+            attributes 'Implementation-DateTime': new Date().format('yyyy-MM-dd-HH:mm:ss')
+        }
+    }
+
+    task sourceJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allJava
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+    
+    artifacts {
+        archives sourceJar
+        archives javadocJar
+    }   
+
+}

@@ -1,0 +1,89 @@
+buildscript {
+
+    ext.gradleScriptDir = "${project.getRootDir()}/gradle"
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE") 
+        classpath("io.spring.gradle:dependency-management-plugin:0.5.6.RELEASE")
+    }    
+}
+
+plugins {
+    id "io.spring.dependency-management" version "0.5.6.RELEASE"
+    id 'org.asciidoctor.convert' version '1.5.3'
+}
+
+apply from: "${gradleScriptDir}/default.gradle"
+apply from: "${gradleScriptDir}/dependency.gradle"
+apply from: "${gradleScriptDir}/versioning.gradle"
+
+
+project('application:common') {
+
+    description = "[Common] Project common files"
+
+
+}
+
+project('application:core') {
+
+    description = "[Service] Core business application server"
+
+    dependencies {
+        compile project(':application:common')
+        
+        compile libraries.spring
+        
+        testCompile libraries.springTest
+    }
+
+    processResources {
+        filesMatching( '**/application.yml' ) {
+            expand( project.properties )
+        }
+    }
+}
+
+project('application:notification') {
+
+    description = "[Service] Push notification application server"
+
+    dependencies {
+        compile project(':application:common')
+
+        compile libraries.spring
+        
+        testCompile libraries.springTest
+    }   
+
+    processResources {
+        filesMatching( '**/application.yml' ) {
+            expand( project.properties )
+        }
+    }
+}
+
+project('application:oauth') {
+
+    description = "[Service] Oauth application server"
+
+    dependencies {
+        compile project(':application:common')
+
+        compile libraries.spring
+        
+        testCompile libraries.springTest
+    }
+
+    processResources {
+        filesMatching( '**/application.yml' ) {
+            expand( project.properties )
+        }
+    }
+}
+
+apply from: "${gradleScriptDir}/versioning.gradle"
+apply from: "${gradleScriptDir}/archive.gradle"

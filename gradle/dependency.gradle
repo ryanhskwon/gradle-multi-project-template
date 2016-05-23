@@ -1,0 +1,49 @@
+ext.versions = [
+    springBoot   : '1.3.5.RELEASE',
+    modelmapper  : '0.7.5',
+    commonslang3 : '3.3.2',
+    springDbUnit : '1.3.0',
+    spockSpring  : '1.0-groovy-2.4',
+    mockito      : '1.10.19',
+    hsqlDb       : '2.3.2',
+    jodaTime     : '2.9.3',
+    userType     : '5.0.0.GA',
+    h2database   : '1.4.191',
+    mysql        : '5.1.38'
+]
+
+ext.libraries = [
+    spring : [
+        "org.springframework.boot:spring-boot-starter-web:$ext.versions.springBoot",
+        "org.springframework.boot:spring-boot-starter-actuator:$ext.versions.springBoot",
+        "org.springframework.boot:spring-boot-actuator-docs:$ext.versions.springBoot"
+    ],
+
+    springTest : [
+        "org.springframework.boot:spring-boot-starter-test:$ext.versions.springBoot",
+        "org.spockframework:spock-spring:$ext.versions.spockSpring",
+        "com.github.springtestdbunit:spring-test-dbunit:$ext.versions.springDbUnit"
+    ],
+
+    utils : [
+        "org.modelmapper:modelmapper:$ext.versions.modelmapper",
+        "org.apache.commons:commons-lang3:$ext.versions.commonslang3"
+    ],
+
+    time : [
+        "joda-time:joda-time:$ext.versions.jodaTime",
+        "org.jadira.usertype:usertype.spi:$ext.versions.userType",
+        "org.jadira.usertype:usertype.core:$ext.versions.userType"
+    ],
+
+    database : [
+        "mysql:mysql-connector-java:$ext.versions.jodaTime"
+    ],
+
+    databaseTest : [
+        "com.h2database:h2:$ext.versions.h2database"
+    ]
+
+
+
+]
